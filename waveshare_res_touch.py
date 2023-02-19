@@ -48,6 +48,12 @@ touchSt_DnDeb_1    = const(1)
 touchSt_Touching_2 = const(2)
 touchSt_UpDeb_3    = const(3)
 
+# Helper to detect a coroutine
+async def _coroutine():
+    pass
+
+type_coroutine = type(_coroutine)
+
 
 class WaveshareResTouch:
 
@@ -129,7 +135,10 @@ class WaveshareResTouch:
     async def _run_loop(self):
         if self.loop_handler:
             while True:
-                self.loop_handler()
+                if isinstance(self.loop_handler, type_coroutine):
+                    await self.loop_handler()
+                else:
+                    self.loop_handler()
                 await asyncio.sleep(TASK_INTERVAL)
             
                 
@@ -224,8 +233,10 @@ class WaveshareResTouch:
     def on_touch_up(self, handler):
         self.touch_up_handler = handler
     
+    
     def on_loop(self, handler):
         self.loop_handler = handler
+    
     
     def start(self):
         asyncio.run(self._init_touch_handling())
