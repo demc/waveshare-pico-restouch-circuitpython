@@ -104,5 +104,11 @@ waveshare.on_touch_down(handle_touch_down)
 waveshare.on_touch_move(handle_touch_move)
 waveshare.on_touch_up(handle_touch_up)
 
+# Use this callback function to do use the traditional event loop
+# def loop():
+#     print("Hello")
+# 
+# waveshare.on_loop(loop)
+
 waveshare.start()
 

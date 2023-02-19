@@ -105,6 +105,9 @@ class WaveshareResTouch:
         self.touch_down_handler = None
         self.touch_move_handler = None
         self.touch_up_handler = None
+        
+        # Loop handler.
+        self.loop_handler = None
 
 
     async def _init_touch_handling(self):
@@ -115,9 +118,20 @@ class WaveshareResTouch:
                 self.touch_up_handler
             )
         )
-    
-        await asyncio.gather(self.detect_touch_task)
         
+        self.loop_task = asyncio.create_task(
+            self._run_loop()  
+        )
+    
+        await asyncio.gather(self.detect_touch_task, self.loop_task)
+    
+    
+    async def _run_loop(self):
+        if self.loop_handler:
+            while True:
+                self.loop_handler()
+                await asyncio.sleep(TASK_INTERVAL)
+            
                 
     async def _detect_touch_event(self, touch_down, touch_move, touch_up):       
         while True:
@@ -210,6 +224,8 @@ class WaveshareResTouch:
     def on_touch_up(self, handler):
         self.touch_up_handler = handler
     
+    def on_loop(self, handler):
+        self.loop_handler = handler
     
     def start(self):
         asyncio.run(self._init_touch_handling())
